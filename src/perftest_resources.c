@@ -108,7 +108,12 @@ static int pp_init_gpu(struct pingpong_context *ctx, int cuda_device_id)
 	printf("creating CUDA Ctx\n");
 
 	/* Create context */
-	error = cuCtxCreate(&cuContext, CU_CTX_MAP_HOST, cuDevice);
+	#if CUDA_VERSION >= 13
+		CUctxCreateParams params = {0};
+		error = cuCtxCreate(&cuContext, &params, CU_CTX_MAP_HOST, cuDevice);
+	#else
+		error = cuCtxCreate(&cuContext, CU_CTX_MAP_HOST, cuDevice);
+	#endif
 	if (error != CUDA_SUCCESS) {
 		printf("cuCtxCreate() error=%d\n", error);
 		return 1;
